@@ -56,7 +56,7 @@ namespace android {
         return true;
     }
 
-    status_t MockDrmFactory::createDrmPlugin(const uint8_t /* uuid */[16], DrmPlugin **plugin)
+    status_t MockDrmFactory::createDrmPlugin(const uint8_t /*uuid*/[16], DrmPlugin **plugin)
     {
         *plugin = new MockDrmPlugin();
         return OK;
@@ -68,9 +68,10 @@ namespace android {
         return (!memcmp(uuid, mock_uuid, sizeof(mock_uuid)));
     }
 
-    status_t MockCryptoFactory::createPlugin(const uint8_t /* uuid */[16],
-                                             const void * /* data */,
-                                             size_t /* size */, CryptoPlugin **plugin)
+    status_t MockCryptoFactory::createPlugin(const uint8_t /*uuid*/[16],
+                                             const void* /*data*/,
+                                             size_t /*size*/,
+                                             CryptoPlugin **plugin)
     {
         *plugin = new MockCryptoPlugin();
         return OK;
@@ -799,7 +800,7 @@ namespace android {
     ssize_t
     MockCryptoPlugin::decrypt(bool secure, const uint8_t key[16], const uint8_t iv[16],
                               Mode mode, const void *srcPtr, const SubSample *subSamples,
-                              size_t numSubSamples, void *dstPtr, AString * /* errorDetailMsg */)
+                              size_t numSubSamples, void *dstPtr, AString* /*errorDetailMsg*/)
     {
         ALOGD("MockCryptoPlugin::decrypt(secure=%d, key=%s, iv=%s, mode=%d, src=%p, "
               "subSamples=%s, dst=%p)",
