@@ -241,7 +241,7 @@ private:
     void finishFlushIfPossible();
 
     void onStart(int64_t startPositionUs = -1);
-    void onResume();
+    virtual void onResume();
     void onPause();
 
     bool audioDecoderStillNeeded();
