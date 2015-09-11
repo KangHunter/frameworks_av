@@ -1,5 +1,9 @@
 LOCAL_PATH:= $(call my-dir)
 
+ifeq ($(AUDIO_FEATURE_DEEP_BUFFER_RINGTONE),true)
+common_cflags += -DDEEP_BUFFER_RINGTONE
+endif
+
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
@@ -42,7 +46,7 @@ LOCAL_STATIC_LIBRARIES := \
     libmedia_helper
 
 LOCAL_MODULE:= libaudiopolicyservice
-
+LOCAL_CFLAGS += $(common_cflags)
 LOCAL_CFLAGS += -fvisibility=hidden
 
 include $(BUILD_SHARED_LIBRARY)
@@ -64,6 +68,8 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_STATIC_LIBRARIES := \
     libmedia_helper
 
+LOCAL_CFLAGS += $(common_cflags)
+
 LOCAL_MODULE:= libaudiopolicymanagerdefault
 
 include $(BUILD_SHARED_LIBRARY)
@@ -79,6 +85,8 @@ LOCAL_SHARED_LIBRARIES := \
     libaudiopolicymanagerdefault
 
 LOCAL_MODULE:= libaudiopolicymanager
+
+LOCAL_CFLAGS += $(common_cflags)
 
 include $(BUILD_SHARED_LIBRARY)
 
