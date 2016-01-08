@@ -586,7 +586,7 @@ status_t Harness::testSeek(
     int64_t durationUs;
     CHECK(source->getFormat()->findInt64(kKeyDuration, &durationUs));
 
-    ALOGI("stream duration is %lld us (%.2f secs)",
+    ALOGI("stream duration is %" PRId64 " us (%.2f secs)",
          durationUs, durationUs / 1E6);
 
     static const int32_t kNumIterations = 5000;
@@ -618,7 +618,7 @@ status_t Harness::testSeek(
                 requestedSeekTimeUs =
                     (int64_t)(uniform_rand() * durationUs);
 
-                ALOGI("requesting seek to %lld us (%.2f secs)",
+                ALOGI("requesting seek to %" PRId64 " us (%.2f secs)",
                      requestedSeekTimeUs, requestedSeekTimeUs / 1E6);
             }
 
@@ -638,7 +638,7 @@ status_t Harness::testSeek(
                 buffer = NULL;
             }
 
-            ALOGI("nearest keyframe is at %lld us (%.2f secs)",
+            ALOGI("nearest keyframe is at %" PRId64 " us (%.2f secs)",
                  actualSeekTimeUs, actualSeekTimeUs / 1E6);
         }
 
