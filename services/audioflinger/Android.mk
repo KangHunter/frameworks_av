@@ -62,7 +62,9 @@ LOCAL_STATIC_LIBRARIES := \
 
 LOCAL_CFLAGS += -std=gnu++11
 LOCAL_MODULE:= libaudioflinger
+ifneq ($(BOARD_USE_64BITMEDIA),true)
 LOCAL_32_BIT_ONLY := true
+endif
 
 LOCAL_SRC_FILES += \
     AudioWatchdog.cpp        \
