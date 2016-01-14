@@ -226,6 +226,11 @@ public:
             void onDynamicPolicyMixStateUpdate(String8 regId, int32_t state);
             void doOnDynamicPolicyMixStateUpdate(String8 regId, int32_t state);
 
+            void onOutputSessionEffectsUpdate(audio_stream_type_t stream,
+                                              audio_unique_id_t sessionId, bool added);
+            void doOnOutputSessionEffectsUpdate(audio_stream_type_t stream,
+                                                audio_unique_id_t sessionId, bool added);
+
 private:
                         AudioPolicyService() ANDROID_API;
     virtual             ~AudioPolicyService();
@@ -256,7 +261,8 @@ private:
             UPDATE_AUDIOPORT_LIST,
             UPDATE_AUDIOPATCH_LIST,
             SET_AUDIOPORT_CONFIG,
-            DYN_POLICY_MIX_STATE_UPDATE
+            DYN_POLICY_MIX_STATE_UPDATE,
+            EFFECT_SESSION_UPDATE
         };
 
         AudioCommandThread (String8 name, const wp<AudioPolicyService>& service);
@@ -296,6 +302,8 @@ private:
                                                           int delayMs);
                     void        dynamicPolicyMixStateUpdateCommand(String8 regId, int32_t state);
                     void        insertCommand_l(AudioCommand *command, int delayMs = 0);
+                    void        effectSessionUpdateCommand(audio_stream_type_t stream,
+                                                           audio_unique_id_t sessionId, bool added);
 
     private:
         class AudioCommandData;
@@ -383,6 +391,13 @@ private:
         public:
             String8 mRegId;
             int32_t mState;
+        };
+
+        class EffectSessionUpdateData : public AudioCommandData {
+        public:
+            audio_stream_type_t mStream;
+            audio_unique_id_t mSessionId;
+            bool mAdded;
         };
 
         Mutex   mLock;
@@ -494,6 +509,9 @@ private:
 
         virtual audio_unique_id_t newAudioUniqueId();
 
+        virtual void onOutputSessionEffectsUpdate(audio_stream_type_t stream,
+                                                  audio_unique_id_t sessionId, bool added);
+
      private:
         AudioPolicyService *mAudioPolicyService;
     };
@@ -510,7 +528,8 @@ private:
                             void      onAudioPatchListUpdate();
                             void      onDynamicPolicyMixStateUpdate(String8 regId, int32_t state);
                             void      setAudioPortCallbacksEnabled(bool enabled);
-
+                            void      onOutputSessionEffectsUpdate(audio_stream_type_t stream,
+                                                                   audio_unique_id_t sessionId, bool added);
                 // IBinder::DeathRecipient
                 virtual     void        binderDied(const wp<IBinder>& who);
 
