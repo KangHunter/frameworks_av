@@ -31,7 +31,7 @@ LOCAL_SHARED_LIBRARIES:= \
         libutils                        \
 
 LOCAL_CFLAGS += -Wno-multichar -Werror -Wall
-LOCAL_CLANG := true
+LOCAL_CLANG := false
 
 LOCAL_MODULE:= libstagefright_wfd
 
