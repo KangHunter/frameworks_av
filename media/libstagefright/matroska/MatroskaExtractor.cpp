@@ -1244,6 +1244,11 @@ void MatroskaExtractor::findThumbnails() {
         TrackInfo *info = &mTracks.editItemAt(i);
 
         const char *mime;
+
+        if (info->mMeta == NULL) {
+            continue;
+        }
+
         CHECK(info->mMeta->findCString(kKeyMIMEType, &mime));
 
         if (strncasecmp(mime, "video/", 6)) {
