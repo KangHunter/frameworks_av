@@ -37,6 +37,8 @@
 
 namespace android {
 
+enum { VIDEO_TRACK = 1, AUDIO_TRACK = 2 };
+
 static uint32_t U32_LE_AT(const uint8_t *ptr) {
    return ptr[3] << 24 | ptr[2] << 16 | ptr[1] << 8 | ptr[0];
 }
@@ -469,9 +471,15 @@ void BlockIterator::seek(
         for (size_t index = 0; index < trackCount; ++index) {
             MatroskaExtractor::TrackInfo& track = mExtractor->mTracks.editItemAt(index);
             const mkvparser::Track *pTrack = pTracks->GetTrackByNumber(track.mTrackNum);
-            if (pTrack && pTrack->GetType() == 1 && pCP->Find(pTrack)) { // VIDEO_TRACK
+            if (pTrack && pTrack->GetType() == VIDEO_TRACK && pCP->Find(pTrack)) {
                 track.mCuePoints.push_back(pCP);
             }
+            if (pTrack && pTrack->GetType() == AUDIO_TRACK &&
+               pTracks->GetTracksCount() == 1 && pCP->Find(pTrack)) { // Handle Audio Only Seek
+                MatroskaExtractor::TrackInfo& track = mExtractor->mTracks.editItemAt(index);
+                track.mCuePoints.push_back(pCP);
+            }
+
         }
 
         if (pCP->GetTime(pSegment) >= seekTimeNs) {
@@ -482,7 +490,10 @@ void BlockIterator::seek(
 
     const mkvparser::CuePoint::TrackPosition *pTP = NULL;
     const mkvparser::Track *thisTrack = pTracks->GetTrackByNumber(mTrackNum);
-    if (thisTrack->GetType() == 1) { // video
+    if (thisTrack->GetType() == VIDEO_TRACK) {
+        MatroskaExtractor::TrackInfo& track = mExtractor->mTracks.editItemAt(mIndex);
+        pTP = track.find(seekTimeNs);
+    } else if (thisTrack->GetType() == AUDIO_TRACK && pTracks->GetTracksCount() == 1) { // handle audio only seek
         MatroskaExtractor::TrackInfo& track = mExtractor->mTracks.editItemAt(mIndex);
         pTP = track.find(seekTimeNs);
     } else {
@@ -490,7 +501,7 @@ void BlockIterator::seek(
         unsigned long int trackCount = pTracks->GetTracksCount();
         for (size_t index = 0; index < trackCount; ++index) {
             const mkvparser::Track *pTrack = pTracks->GetTrackByIndex(index);
-            if (pTrack && pTrack->GetType() == 1 && pCues->Find(seekTimeNs, pTrack, pCP, pTP)) {
+            if (pTrack && pTrack->GetType() == VIDEO_TRACK && pCues->Find(seekTimeNs, pTrack, pCP, pTP)) {
                 ALOGV("Video track located at %zu", index);
                 break;
             }
@@ -521,7 +532,7 @@ void BlockIterator::seek(
         if (isAudio || block()->IsKey()) {
             // Accept the first key frame
             int64_t frameTimeUs = (block()->GetTime(mCluster) + 500LL) / 1000LL;
-            if (thisTrack->GetType() == 1 || frameTimeUs >= seekTimeUs) {
+            if (thisTrack->GetType() == VIDEO_TRACK || frameTimeUs >= seekTimeUs) {
                 *actualFrameTimeUs = frameTimeUs;
                 ALOGV("Requested seek point: %" PRId64 " actual: %" PRId64,
                       seekTimeUs, *actualFrameTimeUs);
@@ -1152,8 +1163,6 @@ void MatroskaExtractor::addTracks() {
         size_t codecPrivateSize;
         const unsigned char *codecPrivate =
             track->GetCodecPrivate(codecPrivateSize);
-
-        enum { VIDEO_TRACK = 1, AUDIO_TRACK = 2 };
 
         sp<MetaData> meta = new MetaData;
 
