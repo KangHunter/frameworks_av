@@ -147,6 +147,7 @@ private:
         AVC,
         AAC,
         HEVC,
+        MPEG2,
         OTHER
     };
 
@@ -260,6 +261,8 @@ MatroskaSource::MatroskaSource(
         ALOGV("mNALSizeLen = %zu", mNALSizeLen);
     } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_AAC)) {
         mType = AAC;
+    } else if (!strcasecmp (mime, MEDIA_MIMETYPE_VIDEO_MPEG2)) {
+        mType = MPEG2;
     }
 }
 
@@ -1184,6 +1187,8 @@ void MatroskaExtractor::addTracks() {
                         ALOGW("%s is not supported.", codecID);
                         continue;
                     }
+                } else if (!strcmp("V_MPEG2", codecID)) {
+                    meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_MPEG2);
                 } else {
                     ALOGW("%s is not supported.", codecID);
                     continue;
