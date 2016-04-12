@@ -501,13 +501,11 @@ VideoFrame *StagefrightMetadataRetriever::getFrameAtTime(
 MediaAlbumArt *StagefrightMetadataRetriever::extractAlbumArt() {
     ALOGV("extractAlbumArt (extractor: %s)", mExtractor.get() != NULL ? "YES" : "NO");
 
-    if (mExtractor == NULL) {
-        return NULL;
-    }
-
     if (!mParsedMetaData) {
-        parseMetaData();
+        if (mExtractor == NULL)
+            return NULL;
 
+        parseMetaData();
         mParsedMetaData = true;
     }
 
@@ -519,13 +517,13 @@ MediaAlbumArt *StagefrightMetadataRetriever::extractAlbumArt() {
 }
 
 const char *StagefrightMetadataRetriever::extractMetadata(int keyCode) {
-    if (mExtractor == NULL) {
-        return NULL;
-    }
 
     if (!mParsedMetaData) {
-        parseMetaData();
+        if (mExtractor == NULL) {
+            return NULL;
+        }
 
+        parseMetaData();
         mParsedMetaData = true;
     }
 
@@ -746,6 +744,15 @@ void StagefrightMetadataRetriever::parseMetaData() {
     // To check whether the media file is drm-protected
     if (mExtractor->getDrmFlag()) {
         mMetaData.add(METADATA_KEY_IS_DRM, String8("1"));
+    }
+
+    if (mExtractor->countTracks() == 1) {
+        sp<MetaData> trackMeta = mExtractor->getTrackMetaData(0);
+        const char *trackMIME;
+        CHECK(trackMeta->findCString(kKeyMIMEType, &trackMIME));
+        if (!strncasecmp("audio/", trackMIME, 6)) {
+            mExtractor.clear();
+        }
     }
 }
 
