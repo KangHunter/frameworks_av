@@ -1174,6 +1174,13 @@ void NuPlayer::onMessageReceived(const sp<AMessage> &msg) {
             ALOGV("kWhatSeek seekTimeUs=%lld us, needNotify=%d",
                     (long long)seekTimeUs, needNotify);
 
+            if(!(mSourceFlags & Source::FLAG_CAN_SEEK) && (seekTimeUs > 0)){
+                if (needNotify)
+                    notifyDriverSeekComplete();
+                ALOGW("Unseekable stream!");
+                break;
+            }
+
             if (!mStarted) {
                 // Seek before the player is started. In order to preview video,
                 // need to start the player and pause it. This branch is called
