@@ -132,6 +132,7 @@ private:
     void performSeek(int64_t seekTimeUs);
 
     bool haveSufficientDataOnAllTracks();
+    bool haveSufficientDataOnTrack(bool audio);
 
     void setEOSTimeout(bool audio, int64_t timeout);
     void setError(status_t err);
